@@ -1,12 +1,4 @@
-const API_BASE = typeof Capacitor !== 'undefined' ? 'https://backend-musicinda.vercel.app' : '';
-
-Object.defineProperty(document, 'hidden', { get: () => false });
-Object.defineProperty(document, 'webkitHidden', { get: () => false });
-Object.defineProperty(document, 'mozHidden', { get: () => false });
-Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
-Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible' });
-document.addEventListener('visibilitychange', (e) => e.stopImmediatePropagation(), true);
-document.addEventListener('webkitvisibilitychange', (e) => e.stopImmediatePropagation(), true);
+﻿const API_BASE = typeof Capacitor !== 'undefined' ? 'https://backend-musicinda.vercel.app' : '';
 
 // --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA AUTO-UPDATE ---
 window.addEventListener('load', () => {
@@ -165,31 +157,19 @@ function handleTrackEnded() {
     playNextTrack(false);
 }
 
-function resolveTrackData(track) {
-    let img = track.thumbnail ? track.thumbnail : (track.img ? track.img : 'https://placehold.co/140x140/282828/FFFFFF?text=Music');
-    img = getHighResImage(img);
-    const artist = track.artist ? track.artist : 'Unknown';
-    return encodeURIComponent(JSON.stringify({
-        videoId: track.videoId,
-        title: track.title,
-        artist: artist,
-        img: img
-    })).replace(/'/g, "%27");
-}
-
 function playNextTrack(isManualClick = true) {
     if(isManualClick) currentRepeatCount = 0;
 
     if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
         if (isShuffle) {
             const randomTrack = currentPlayContext.data[Math.floor(Math.random() * currentPlayContext.data.length)];
-            const trackData = resolveTrackData(randomTrack);
+            const trackData = encodeURIComponent(JSON.stringify(randomTrack)).replace(/'/g, "%27");
             playMusic(randomTrack.videoId, trackData, currentPlayContext);
         } else {
             let currentIndex = currentPlayContext.data.findIndex(t => t.videoId === currentTrack.videoId);
             if (currentIndex !== -1 && currentIndex + 1 < currentPlayContext.data.length) {
                 const nextTrack = currentPlayContext.data[currentIndex + 1];
-                const trackData = resolveTrackData(nextTrack);
+                const trackData = encodeURIComponent(JSON.stringify(nextTrack)).replace(/'/g, "%27");
                 playMusic(nextTrack.videoId, trackData, currentPlayContext);
             } else {
                 playNextSimilarSong(); 
@@ -197,17 +177,6 @@ function playNextTrack(isManualClick = true) {
         }
     } else {
         playNextSimilarSong();
-    }
-}
-
-function playPrevTrack() {
-    if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
-        let currentIndex = currentPlayContext.data.findIndex(t => t.videoId === currentTrack?.videoId);
-        if (currentIndex > 0) {
-            const prevTrack = currentPlayContext.data[currentIndex - 1];
-            const trackData = resolveTrackData(prevTrack);
-            playMusic(prevTrack.videoId, trackData, currentPlayContext);
-        }
     }
 }
 
@@ -333,7 +302,7 @@ function toggleShuffle() {
     isShuffle = !isShuffle;
     const btn1 = document.getElementById('btnShuffle');
     const btn2 = document.getElementById('btnPlaylistShuffle');
-    const color = isShuffle ? 'var(--accent)' : 'var(--text-sub)';
+    const color = isShuffle ? 'var(--spotify-green)' : 'var(--text-sub)';
     if (btn1) btn1.style.fill = color;
     if (btn2) btn2.style.fill = color;
     showToast(isShuffle ? "Acak dihidupkan" : "Acak dimatikan");
@@ -349,11 +318,11 @@ function toggleRepeat() {
         badge.style.display = 'none';
         showToast("Ulangi dimatikan");
     } else {
-        btn.style.fill = 'var(--accent)';
+        btn.style.fill = 'var(--spotify-green)';
         badge.style.display = 'block';
         if (repeatState === 1) { badge.innerText = "1x"; showToast("Ulangi 1 kali"); }
         if (repeatState === 2) { badge.innerText = "3x"; showToast("Ulangi 3 kali"); }
-        if (repeatState === 3) { badge.innerText = "∞"; showToast("Ulangi terus"); }
+        if (repeatState === 3) { badge.innerText = "Γê₧"; showToast("Ulangi terus"); }
     }
 }
 
@@ -498,7 +467,7 @@ function switchView(viewName, pushState = true) {
     if(viewName === 'home') navItems[0].classList.add('active');
     else if (viewName === 'search') navItems[1].classList.add('active');
     else if (viewName === 'library') { navItems[2].classList.add('active'); renderLibraryUI(); }
-
+    else if (viewName === 'developer') navItems[3].classList.add('active'); 
     
     window.scrollTo(0,0);
 
@@ -671,7 +640,7 @@ function renderLibraryUI() {
                 </div>
                 <div class="lib-item-info">
                     <div class="lib-item-title">Suka</div>
-                    <div class="lib-item-sub">Koleksi • ${likedCount} lagu</div>
+                    <div class="lib-item-sub">Koleksi ΓÇó ${likedCount} lagu</div>
                 </div>
             </div>
         `;
@@ -687,7 +656,7 @@ function renderLibraryUI() {
                     </div>
                     <div class="lib-item-info">
                         <div class="lib-item-title">Favorit</div>
-                        <div class="lib-item-sub">Koleksi • ${favCount} lagu</div>
+                        <div class="lib-item-sub">Koleksi ΓÇó ${favCount} lagu</div>
                     </div>
                 </div>
             `;
@@ -704,7 +673,7 @@ function renderLibraryUI() {
                         </div>
                         <div class="lib-item-info">
                             <div class="lib-item-title">Histori Putar</div>
-                            <div class="lib-item-sub">Otomatis • ${histCount} lagu</div>
+                            <div class="lib-item-sub">Otomatis ΓÇó ${histCount} lagu</div>
                         </div>
                     </div>
                 `;
@@ -720,7 +689,7 @@ function renderLibraryUI() {
                             </div>
                             <div class="lib-item-info">
                                 <div class="lib-item-title">Unduhan (Offline)</div>
-                                <div class="lib-item-sub">Memori Perangkat • ${offCount} lagu</div>
+                                <div class="lib-item-sub">Memori Perangkat ΓÇó ${offCount} lagu</div>
                             </div>
                         </div>
                     `;
@@ -735,7 +704,7 @@ function renderLibraryUI() {
                                     <img src="${p.img || 'https://via.placeholder.com/120?text=+'}" class="lib-item-img" onerror="this.src='https://via.placeholder.com/120?text=+'">
                                     <div class="lib-item-info">
                                         <div class="lib-item-title">${p.name}</div>
-                                        <div class="lib-item-sub">Playlist • Kamu</div>
+                                        <div class="lib-item-sub">Playlist ΓÇó Kamu</div>
                                     </div>
                                 </div>
                             `;
