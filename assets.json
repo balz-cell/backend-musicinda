@@ -1,0 +1,10 @@
+{
+  "logo": "./logo.jpeg",
+  "icon": {
+    "foreground": "./logo.jpeg",
+    "background": "#121212"
+  },
+  "splash": {
+    "backgroundColor": "#121212"
+  }
+}

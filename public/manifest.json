@@ -8,15 +8,15 @@
   "theme_color": "#1db954",
   "icons": [
     {
-      "src": "Gambar4.png",
+      "src": "logo.jpeg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "Gambar4.png",
+      "src": "logo.jpeg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "maskable"
     }
   ]

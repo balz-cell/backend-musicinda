@@ -1,5 +1,13 @@
 const API_BASE = typeof Capacitor !== 'undefined' ? 'https://backend-musicinda.vercel.app' : '';
 
+Object.defineProperty(document, 'hidden', { get: () => false });
+Object.defineProperty(document, 'webkitHidden', { get: () => false });
+Object.defineProperty(document, 'mozHidden', { get: () => false });
+Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
+Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible' });
+document.addEventListener('visibilitychange', (e) => e.stopImmediatePropagation(), true);
+document.addEventListener('webkitvisibilitychange', (e) => e.stopImmediatePropagation(), true);
+
 // --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA AUTO-UPDATE ---
 window.addEventListener('load', () => {
     history.replaceState({ view: 'home' }, '', '#home');
@@ -157,19 +165,31 @@ function handleTrackEnded() {
     playNextTrack(false);
 }
 
+function resolveTrackData(track) {
+    let img = track.thumbnail ? track.thumbnail : (track.img ? track.img : 'https://placehold.co/140x140/282828/FFFFFF?text=Music');
+    img = getHighResImage(img);
+    const artist = track.artist ? track.artist : 'Unknown';
+    return encodeURIComponent(JSON.stringify({
+        videoId: track.videoId,
+        title: track.title,
+        artist: artist,
+        img: img
+    })).replace(/'/g, "%27");
+}
+
 function playNextTrack(isManualClick = true) {
     if(isManualClick) currentRepeatCount = 0;
 
     if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
         if (isShuffle) {
             const randomTrack = currentPlayContext.data[Math.floor(Math.random() * currentPlayContext.data.length)];
-            const trackData = encodeURIComponent(JSON.stringify(randomTrack)).replace(/'/g, "%27");
+            const trackData = resolveTrackData(randomTrack);
             playMusic(randomTrack.videoId, trackData, currentPlayContext);
         } else {
             let currentIndex = currentPlayContext.data.findIndex(t => t.videoId === currentTrack.videoId);
             if (currentIndex !== -1 && currentIndex + 1 < currentPlayContext.data.length) {
                 const nextTrack = currentPlayContext.data[currentIndex + 1];
-                const trackData = encodeURIComponent(JSON.stringify(nextTrack)).replace(/'/g, "%27");
+                const trackData = resolveTrackData(nextTrack);
                 playMusic(nextTrack.videoId, trackData, currentPlayContext);
             } else {
                 playNextSimilarSong(); 
@@ -177,6 +197,17 @@ function playNextTrack(isManualClick = true) {
         }
     } else {
         playNextSimilarSong();
+    }
+}
+
+function playPrevTrack() {
+    if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
+        let currentIndex = currentPlayContext.data.findIndex(t => t.videoId === currentTrack?.videoId);
+        if (currentIndex > 0) {
+            const prevTrack = currentPlayContext.data[currentIndex - 1];
+            const trackData = resolveTrackData(prevTrack);
+            playMusic(prevTrack.videoId, trackData, currentPlayContext);
+        }
     }
 }
 
@@ -302,7 +333,7 @@ function toggleShuffle() {
     isShuffle = !isShuffle;
     const btn1 = document.getElementById('btnShuffle');
     const btn2 = document.getElementById('btnPlaylistShuffle');
-    const color = isShuffle ? 'var(--spotify-green)' : 'var(--text-sub)';
+    const color = isShuffle ? 'var(--accent)' : 'var(--text-sub)';
     if (btn1) btn1.style.fill = color;
     if (btn2) btn2.style.fill = color;
     showToast(isShuffle ? "Acak dihidupkan" : "Acak dimatikan");
@@ -318,7 +349,7 @@ function toggleRepeat() {
         badge.style.display = 'none';
         showToast("Ulangi dimatikan");
     } else {
-        btn.style.fill = 'var(--spotify-green)';
+        btn.style.fill = 'var(--accent)';
         badge.style.display = 'block';
         if (repeatState === 1) { badge.innerText = "1x"; showToast("Ulangi 1 kali"); }
         if (repeatState === 2) { badge.innerText = "3x"; showToast("Ulangi 3 kali"); }
@@ -467,7 +498,7 @@ function switchView(viewName, pushState = true) {
     if(viewName === 'home') navItems[0].classList.add('active');
     else if (viewName === 'search') navItems[1].classList.add('active');
     else if (viewName === 'library') { navItems[2].classList.add('active'); renderLibraryUI(); }
-    else if (viewName === 'developer') navItems[3].classList.add('active'); 
+
     
     window.scrollTo(0,0);
 
