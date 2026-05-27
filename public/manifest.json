@@ -1,0 +1,23 @@
+{
+  "name": "Musicinda Music",
+  "short_name": "Musicinda",
+  "description": "Aplikasi Web Music Moderen by superheroiq",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1db954",
+  "icons": [
+    {
+      "src": "Gambar4.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Gambar4.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
