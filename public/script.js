@@ -1,3 +1,5 @@
+const API_BASE = typeof Capacitor !== 'undefined' ? 'https://backend-musicinda.vercel.app' : '';
+
 // --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA AUTO-UPDATE ---
 window.addEventListener('load', () => {
     history.replaceState({ view: 'home' }, '', '#home');
@@ -181,7 +183,7 @@ function playNextTrack(isManualClick = true) {
 async function playNextSimilarSong() {
     if (!currentTrack) return;
     try {
-        const response = await fetch(`/api/search?query=${encodeURIComponent(currentTrack.artist + " official audio")}`);
+        const response = await fetch(`${API_BASE}/api/search?query=${encodeURIComponent(currentTrack.artist + " official audio")}`);
         const result = await response.json();
         if (result.status === 'success' && result.data.length > 0) {
             const relatedSongs = result.data.filter(t => t.videoId !== currentTrack.videoId);
@@ -525,7 +527,7 @@ function createCardHTML(track, isArtist = false) {
 let homeDisplayedVideoIds = new Set();
 async function fetchAndRender(query, containerId, formatType, isArtist = false, isHome = false) {
     try {
-        const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_BASE}/api/search?query=${encodeURIComponent(query)}`);
         const result = await response.json();
         if (result.status === 'success') {
             let limit = containerId === 'recentList' ? 4 : (formatType === 'list' ? 4 : 8);
@@ -584,7 +586,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     searchTimeout = setTimeout(async () => {
         document.getElementById('searchResults').innerHTML = '<div style="color:var(--text-sub); text-align:center;">Mencari musik...</div>';
         try {
-            const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE}/api/search?query=${encodeURIComponent(query)}`);
             const result = await response.json();
             if (result.status === 'success') {
                 let html = '';
